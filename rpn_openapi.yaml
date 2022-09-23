@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: Swagger RPN Calculator
+  description: |-
+    A Simple Client/Server based RPN syntax calculator
+  contact:
+    email: andycrepin91@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/rpn
+tags:
+  - name: stack
+    description: Operations about stacks
+  - name: op
+    description: Operations about ops
+paths:
+  /op:
+    get:
+      tags:
+        - op
+      summary: get a list of all licite operands
+      description: get a list of all licite operands
+      operationId: getAllOperands
+      responses:
+        '200':
+          description: all operation as object keys, with description as value
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+  /op/{opId}/stack/{stackId}:
+    post:
+        tags:
+          - stack
+          - op
+        summary: apply operand to stack
+        description: apply operand to stack
+        operationId: applyOperandToStack
+        parameters:
+        - name: stackId
+          in: path
+          description: UUID of stack
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: opId
+          in: path
+          description: operand
+          required: true
+          schema:
+            type: string
+            enum:
+              - add
+              - sub
+              - div
+              - mult
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              plain/text:
+                example: 'OK'
+          '400':
+            description: descriptive message
+  /stack:
+    get:
+      tags:
+        - stack
+      summary: get a list of all stacks
+      description: get a list of all stacks
+      operationId: getAllStacks
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        '400':
+          description: descriptive message
+    post:
+      tags:
+        - stack
+      summary: create a new stack
+      description: create a new stack
+      operationId: addStack
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StackCreated'          
+        '400':
+          description: descriptive message
+  /stack/{stackId}:
+    get:
+      tags:
+        - stack
+      summary: get a stacks
+      description: get a stacks
+      operationId: getStack
+      parameters:
+        - name: stackId
+          in: path
+          description: UUID of stack
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: number
+                  format: int64
+        '400':
+          description: descriptive message
+    delete:
+      tags:
+          - stack
+      summary: delete a stack
+      description: delete a stack
+      operationId: deleteStack
+      parameters:
+      - name: stackId
+        in: path
+        description: UUID of stack
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+          '200':
+            description: Successful operation
+            content:
+              plain/text:
+                example: 'OK'
+          '400':
+            description: descriptive message
+    post:
+        tags:
+          - stack
+        summary: push value to stack
+        description: push value to stack
+        operationId: addValueToStack
+        parameters:
+        - name: stackId
+          in: path
+          description: UUID of stack
+          required: true
+          schema:
+            type: string
+            format: uuid
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StackValue'
+        responses:
+          '200':
+            description: Successful operation
+            content:
+              plain/text:
+                example: 'OK'
+          '400':
+            description: descriptive message
+components:
+  schemas:
+    StackValue:
+      required:
+        - value
+      type: object
+      properties:
+        value:
+          type: integer
+          format: int64
+    StackCreated:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
